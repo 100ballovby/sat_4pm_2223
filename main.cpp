@@ -99,12 +99,12 @@ void mid_len_str() {
     }
 }
 
-int main() {
+void equal_letters() {
     char str[100] = "zombie arriva at our cityc";
     str[strlen(str)] = ' ';
     int first_letter = 0;
     for (int i = 0; i < strlen(str); i++) {
-        if (str[i] == ' ' || str[i] == strlen(str)) {
+        if (str[i] == ' ') {
             int last_letter = i - 1;
             if (str[first_letter] == str[last_letter]) {
                 for (int j = first_letter; j <= last_letter; j++) {
@@ -116,6 +116,10 @@ int main() {
             }
         }
     }
+}
+
+int main() {
+
 
     return 0;
 }
