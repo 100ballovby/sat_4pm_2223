@@ -1,125 +1,86 @@
 #include <iostream>
+#include <cstring>
 using namespace std;
 
-void char_n_arrays() {
-    char str[3][100] {
-            "Hello, C++",
-            "Hi there",
-            "Good bye",
-    };  // двумерный массив строк
+void nested_char_array() {
+    int matrix[3][1] {
+            {0},
+            {0},
+            {0}
+    };
+    char m_str[3][10] {
+            "hellohell",
+            "hellohell",
+            "hellohell"
+    };
+    cout << matrix;
+    cout << m_str;
+}
+
+void nested_fixed_char_array() {
+    char m_s[3][100];
+    // наполнение двумерного массива строк
+    for (int i = 0; i < 3; i++) {  // для каждого вложенного массива
+        cout << "type string: ";
+        cin.getline(m_s[i], 100);
+        // вывод двумерного массива строк
+        cout << "Row " << i << ": " << m_s[i] << endl;
+    }
+    // второй вариант вывода двумерки
     for (int i = 0; i < 3; i++) {
-        cout << str[i][0] << endl;
+        for (int j = 0; j < strlen(m_s[i]); j++) {
+            cout << m_s[i][j] << "\t";
+        }
+        cout << endl;
     }
+
+    // foreach
+    char str[] = "hello hello hello hello";
+    for (char symbol : str) {
+        cout << symbol << endl;
+    }
+
 }
 
-void char_array_fill() {
-    const int n = 3, m = 100;
-    char str[n][m];  // двумерный массив строк
-
-    for (int i = 0; i < n; i++) {
-        cout << "Insert string " << i + 1 << ": ";
-        cin.getline(str[i], m);
-    }
-
-    for (int i = 0; i < n; i++) {
-        cout << str[i] << endl;
-    }
-}
-
-void dynamic_char() {
-    int n, m = 100;
-    cout << "Insert how many string: ";
+void mid_length_task() {
+    int n, m = 100, sum = 0, mid = 0;
+    cout << "N: ";
     cin >> n;
-    cin.get();  // для игнорирования создания пустой строки после ввода
-    char **str = new char *[n];  // двумерный динамический массив строк
+    cin.get();  // для адекватной работы getline'a
 
-    for (int i = 0; i < n; i++) {
-        str[i] = new char[m];
-        cout << "Insert string " << i + 1 << ": ";
-        cin.getline(str[i], m);
+    char **m_s = new char *[n];  // создаю сам массив
+    for (int i = 0; i < n; i++) {  // n раз
+        m_s[i] = new char [m];  // вписываю в массив вложенные массивы (строки)
+        cout << "Str: ";
+        cin.getline(m_s[i], m);
+        sum += strlen(m_s[i]);
+        cout << m_s[i] << " length: " << strlen(m_s[i]) << endl;
     }
-
-    // вывод "старым способом", как в матрицах
-    for (int i = 0; i < n; i++) {  // перебираю строки (слова)
-        for (int j = 0; j < strlen(str[i]); j++) {  // перебираю каждую букву в слове
-            cout << str[i][j];  // вывожу каждую букву
-        }
-        cout << endl;  // перенос строки
-    }
-
-    // правильный способ вывода двумерного массива строк
-    for (int i = 0; i < n; i++) {  // перебираю строки (слова)
-        cout << str[i] << endl;
-    }
-
-    // высвобождение памяти динамического массива
-    for (int i = 0; i < n; i++) {
-        str[i] = nullptr;
-    }
-    str = nullptr;
-}
-
-void mid_len_str() {
-    int len, string_len = 100;
-    cout << "Insert how many string: ";
-    cin >> len;
-    cin.get();  // для игнорирования создания пустой строки после ввода
-    char **str = new char *[len];  // двумерный динамический массив строк
-
-    for (int i = 0; i < len; i++) {
-        str[i] = new char[string_len];
-        cout << "Insert string " << i + 1 << ": ";
-        cin.getline(str[i], string_len);
-    }
-    int sum = 0;
-    for (int i = 0; i < len; i++) {
-        sum += strlen(str[i]);
-    }
-    int mid = sum / len;
-    cout << "Mid length: " << sum / len << endl;
-
-    for (int i = 0; i < len; i++) {  // перебираю элементы двумерного массива
-        if (strlen(str[i]) < mid) {  // если длина конкретного слова меньше средней длины слов
-            int lst_i = strlen(str[i]);  // сохраняю в качестве индекса длину слова
-            while (lst_i < mid) {  // пока этот индекс меньше средней длины
-                str[i][lst_i] = ' ';  // подставляю прообел в строчку
-                lst_i++;  // увеличиваю индекс
+    mid = sum / n;
+    for (int k = 0; k < n; k++){
+        if (strlen(m_s[k]) < mid) {
+            int index = strlen(m_s[k]);
+            while (strlen(m_s[k]) < mid) {
+                m_s[k][index] = ' ';
+                index++;
+            }
+        } else if (strlen(m_s[k]) > mid) {
+            int index = strlen(m_s[k]);
+            while (strlen(m_s[k]) > mid) {
+                m_s[k][index] = '\u0000';
+                index--;
             }
         }
-        else if (strlen(str[i]) > mid) {  // если длина конкретного слова больше средней длины
-            int lst_i = strlen(str[i]);  // сохраняю длину слова как индекс
-            while (lst_i >= mid) {  // пока этот индекс больше или равен средней длине
-                str[i][lst_i] = '\u0000';  // заполоняю символ с этим индексом null
-                lst_i--;  // уменьшаю индекс
-            }
-        }
+        cout << "'" << m_s[k] << "'";
     }
-    for (int i = 0; i < len; i++) {
-        cout << "'" << str[i] << "'" << endl;
+    cout << "Mid length: " << mid << endl;
+    for (int c = 0; c < n; c++) {
+        m_s[c] = nullptr;  // удаляем вложенные строки
     }
-}
-
-void equal_letters() {
-    char str[100] = "zombie arriva at our cityc";
-    str[strlen(str)] = ' ';
-    int first_letter = 0;
-    for (int i = 0; i < strlen(str); i++) {
-        if (str[i] == ' ') {
-            int last_letter = i - 1;
-            if (str[first_letter] == str[last_letter]) {
-                for (int j = first_letter; j <= last_letter; j++) {
-                    cout << str[j];
-                }
-                cout << endl;
-            } else {
-                first_letter = i + 1;
-            }
-        }
-    }
+    m_s = nullptr;  // удаляем саму "матрицу"
+    return 0;
 }
 
 int main() {
 
-
-    return 0;
 }
