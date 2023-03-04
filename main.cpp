@@ -1,72 +1,29 @@
 #include <iostream>
+#include <vector>
 #include <string>
-
 using namespace std;
 
-string caesar_cipher(string phrase, int shift, string lang) {
-    string eng = "abcdefghijklmnopqrstuvwxyz";
-    string rus = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    string alphabet = "";
-    string res = "";  // зашифрованную строчку буду хранить здесь
-
-    if (tolower(lang[0]) == 'r') {
-        alphabet = rus;
-    } else {
-        alphabet = eng;
-    }
-
-    for (int i = 0; i < phrase.length(); i++) {
-        int place = alphabet.find(phrase[i]);  // определяем индекс буквы в алфавите
-        int new_place = place + shift;  // сохраняем новую позицию буквы в алфавите
-
-        if (new_place >= alphabet.length()) {
-            new_place -= alphabet.length();
-        }
-
-        if (ispunct(phrase[i]) || isspace(phrase[i])) {
-            res += phrase[i];  // не меняю символ, если он является знаком препинания
-        } else {
-            res += alphabet[new_place];  // подставляю букву со сдвигом в строку
-        }
-    }
-    return res;
-}
-
-void decipher(string phrase, string lang) {
-    string eng = "abcdefghijklmnopqrstuvwxyz";
-    string rus = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    string alphabet = "";
-    int shift = 0;  // изначальный сдвиг
-
-    if (tolower(lang[0]) == 'r') {
-        alphabet = rus;
-    } else {
-        alphabet = eng;
-    }
-
-    while (shift < alphabet.length()) {
-        string res = "";
-        for (int i = 0; i < phrase.length(); i++) {
-            int place = alphabet.find(phrase[i]);
-            int new_place = place - shift;
-
-            if (new_place <= 0) {
-                new_place += alphabet.length();
-            }
-
-            if (ispunct(phrase[i]) || isspace(phrase[i])) {
-                res += phrase[i];
-            } else {
-                res += alphabet[new_place];
-            }
-        }
-        cout << "Shift " << shift << " - " << res << endl;
-        shift++;
-    }
-}
-
 int main() {
-    cout << caesar_cipher("how are you", 4, "eng") << endl;
-    decipher("lsa evi csy", "eng");
+    // создаем вектор строк
+    vector<string> students;
+    // временное хранилище фамилий студентов
+    string buffer;
+
+    cout << "Insert students names. Insert empty string for exit: " << endl;
+    do {
+        getline(cin, buffer);  // получаю ввод от пользователя
+        if (!buffer.empty()) {  // если нам ввели не пустую строку
+            students.push_back(buffer);  // добавляем занчение в вектор
+            // метод push_back(x) добавляет значение х в конец вектора
+        }
+    } while (buffer != "");  // проверяю: не пустой ли он
+
+    unsigned int vector_size = students.size();// метод push_back(x) добавляет значение х в конец вектора
+
+    // выведем заполненный вектор в консоль
+    cout << "Students: " << endl;
+    for (auto &student : students) {
+        cout << student << endl;
+    }
     return 0;
 }
