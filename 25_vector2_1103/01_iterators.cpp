@@ -3,13 +3,6 @@
 using namespace std;
 
 
-void print_vector(vector<int> &v) {
-    for (int i = 0; i < v.size(); i++) {  // явный индекс
-        cout << v[i] << ' ';
-    }
-    cout << endl;
-}
-
 void iterators() {
     vector<float> data{ 1.5, 2.3, -9.78, 1.112, 5.1, 3.21 };
     auto start { &data[0] };  // создали указатель на первый элемент контейнера data
@@ -35,21 +28,4 @@ void iterators_std() {
         // цикл незаметно обращается к функциям begin и end для осуществления работы
         cout << i << ' ';
     }
-}
-
-vector<int> test(vector<int> &nums) {
-    vector<int> tbd;  // временная хранилка
-    for (auto i = 0; i < nums.size(); i++) {
-        if ((nums[i] < nums[i - 1]) && (nums[i] < nums[i + 1])) {
-            tbd.push_back(nums[i]);
-        }
-    }
-    return tbd;
-}
-
-int main() {
-
-    auto start { data.begin() };  // итератор из std:: (начало)
-    auto end { data.end() };  // итератор из std:: (конец)
-    return 0;
 }
