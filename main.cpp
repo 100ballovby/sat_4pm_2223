@@ -2,68 +2,39 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 using namespace std;
 
-struct Employee {
-    short int id;  // поле структуры id
-    int age;
-    string name;
-    double salary;
-};  // это структура
-
-struct Manager {
-    Employee CEO;  // все поля из структуры Employee мы добавляем в Manager
-    string department;  // добавляю новое поле в структуру
+struct NumSq {
+    int number;
+    double num_square;
 };
 
-void add_empl(vector<Employee> &v) {
-    int id = v.size() + 1;
-    Employee empl;
-    empl.id = id;
-    cout << "Age: "; cin >> empl.age;
-    cout << "Name: "; cin >> empl.name;
-    cout << "Salary: "; cin >> empl.salary;
-
-    v.push_back(empl);
-}
-
-void show_all_employees(vector<Employee> &v) {
-    for (auto ptr = v.begin(); ptr != v.end(); ptr++) {
-        cout << "ID: " << ptr->id << endl;
-        cout << "Name: " << ptr->name << endl;
-        cout << "Age: " << ptr->age << endl;
-        cout << "Salary: " << ptr->salary << endl;
-
-        cout << endl << endl;
-    }
-}
-
-bool compare_by_salary(const Employee &e1, const Employee &e2) {
-    return e1.salary > e2.salary;
+bool my_comparison(const NumSq &a, const NumSq &b) {
+    // передаем функции ссылки на элементы структуры
+    return a.number < b.number;  // и сравниваем, кто из двух элементов имеет бОльшее значение
 }
 
 int main() {
-    int choice;
+    srand(time(NULL));
+    int n = 121;
+    cout << sqrt(n) << endl;
+    cout << pow(n, 3) << endl;
 
-    Employee james {1, 25, "James Doe", 1120.2};  // инициализация новой структуры
-    Manager Ivan {{3, 38, "Ivan Dmitriev", 10000}, "IT"};
+    double sq = pow(3, 2) + pow(8, 2);
+    cout << sqrt(sq) << endl;
 
-    vector<Employee> employees;  // создаю вектор с типом данных структуры
-
-    employees.push_back(james);  // добавляю в вектор работника
-
-    while (choice != 3) {
-        cout << "Choose: \n1 - Add employee, \n2 - show all employees\n 3- exit";
-        cin >> choice;
-
-        if (choice == 1) {
-            add_empl(employees);
-        } else if (choice == 2) {
-            sort(employees.begin(), employees.end(), compare_by_salary);
-            cout << "List of employees: " << endl << endl;
-            show_all_employees(employees);
-        }
+    // наполнить вектор квадратами первых 20 чисел
+    vector<NumSq> squares;  // тип данных вектора должен быть структурой
+    for (int i = 1; i <= 20; i++) {
+        int rn = rand() % 10;
+        NumSq structure {rn, pow(rn, 2)};
+        squares.push_back(structure);
     }
-
+    sort(squares.begin(), squares.end(), my_comparison);  // отсортировать вектор от начала до конца по возрастанию
+    for (auto ptr = squares.begin(); ptr != squares.end(); ptr++) {
+        cout << ptr->number << "\n" << ptr->num_square << " ";
+        cout << "\n\n";
+    }
     return 0;
 }
