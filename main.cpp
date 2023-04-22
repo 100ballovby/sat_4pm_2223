@@ -1,133 +1,145 @@
 #include <iostream>
 #include <ctime>
-
 using namespace std;
 
-struct RockPaperScissors {
-private:
-    int player_score;
-    int computer_score;
-    int rounds_played;
+const int BOARD_SIZE = 10;
 
-    // метод, который будет генерировать случайный выбор "фигуры"
-    int computer_choice() {
-        return rand() % 3;  // 0 - камень, 1 - ножницы, 2 - бумага
-    }
-
-    // метод, определяющий победителя в раунде игры
-    int round_winner(int player_choice, int computer_choice) {
-        if ((player_choice == 0 && computer_choice == 1) ||
-            (player_choice == 1 && computer_choice == 2) ||
-            (player_choice == 2 && computer_choice == 0)) {
-            // игрок победил
-            return 1;
-        } else if ((player_choice == 1 && computer_choice == 0) ||
-                   (player_choice == 2 && computer_choice == 1) ||
-                   (player_choice == 0 && computer_choice == 2)) {
-            // компьютер победил
-            return 2;
-        } else {
-            // Ничья
-            return 0;
-        }
-    }
-
-    // Метод вывода сообщения о победителе
-    void print_round_result(int winner, int player_choice, int computer_choice) {
-        cout << "Your choice: ";
-        switch (player_choice) {
-            case 0:
-                cout << "rock";
-                break;
-            case 1:
-                cout << "scissors";
-                break;
-            case 2:
-                cout << "paper";
-                break;
-        }
-        cout << ", computer choice: ";
-        switch (computer_choice) {
-            case 0:
-                cout << "rock";
-                break;
-            case 1:
-                cout << "scissors";
-                break;
-            case 2:
-                cout << "paper";
-                break;
-        }
-        cout << ". ";
-        if (winner == 1) {
-            cout << "You win!";
-            this->player_score++;
-        } else if (winner == 2) {
-            cout << "Computer wins!";
-            this->computer_score++;
-        } else {
-            cout << "Nobody wins!";
-        }
-        cout << endl << endl;
-    }
-
-public:
-    // конструктор для инициализации начальных значений
-    RockPaperScissors() {
-        player_score = 0;
-        computer_score = 0;
-        rounds_played = 0;
-    }
-
-    // метод игры
-    void play() {
-        while (true) {
-            cout << "Insert your choice (0 - rock, 1 - scissors, 2 - paper): ";
-            int player_choice;
-            cin >> player_choice;
-            while (player_choice < 0 || player_choice > 2) {
-                cout << "Incorrect! insert 0, 1 or 2!";
-                cin >> player_choice;
-            }
-
-            // выполнение раунда
-            int comp_choice = computer_choice();
-            int winner = round_winner(player_choice, comp_choice);
-            print_round_result(winner, player_choice, comp_choice);
-            rounds_played++;
-
-            // проверка на завершение игры
-            if (player_score >= 3) {
-                cout << "You won! Congratulations🎉" << endl;
-                break;
-            } else if (computer_score >= 3) {
-                cout << "Computer won! Looser!" << endl;
-                break;
-            }
-        }
-        // вывод статистики
-        cout << "Game over! Stats: " << endl;
-        cout << "Rounds played: " << rounds_played << endl;
-        cout << "Player wins: " << player_score << " times." << endl;
-        cout << "Computer wins: " << computer_score << " times." << endl << endl;
-
-        rounds_played = 0;
-        player_score = 0;
-        computer_score = 0;
-    }
+struct Ship {
+    int length;
+    int x;
+    int y;
+    bool horizontal;
+    bool isSunk;
 };
 
-int main() {
+struct Board {
+    char board[BOARD_SIZE][BOARD_SIZE];
+    Ship ships[10];
+};
+
+void initBoard(Board &board) {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            board.board[i][j] = '.';
+        }
+    }
+
+    for (int i = 0; i < 5; i++) {
+        board.ships[i].isSunk = false;
+    }
+}
+
+void printBoard(const Board &board) {
+    cout << "\t";
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        cout << i + 1 << "\t";
+    }
+    cout << "\n";
+
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        cout << static_cast<char>('A' + i) << "\t";
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            cout << board.board[i][j] << "\t";
+        }
+        cout << "\n";
+    }
+}
+
+bool isShipHit(const Ship &ship, int x, int y) {
+    if (ship.horizontal) {
+        return ship.x <= x && x < ship.x + ship.length && ship.y == y;
+    } else {
+        return ship.y <= y && y < ship.y + ship.length && ship.x == x;
+    }
+}
+
+bool isGameOver(const Board &board) {
+    for (int i = 0; i < 5; i++) {
+        if (board.ships[i].isSunk) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isShipSunk(Ship &ship, Board &board) {
+    for (int i = 0; i < ship.length; i++) {
+        if (!isShipHit(ship, ship.horizontal ? ship.x + i : ship.x,
+                       ship.horizontal ? ship.y : ship.y + i)) {
+            return false;
+        }
+    }
+    ship.isSunk = true;
+
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (board.board[i][j] == 'X' && !isShipHit(ship, i, j)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void placeShip(Board &board) {
     srand(time(NULL));
+    for (int i = 0; i < 5; i++) {
+        bool horizontal = rand() % 2 == 0;
+        int x = rand() % BOARD_SIZE;
+        int y = rand() % BOARD_SIZE;
+        int length = 4 - i;
+        bool valid = true;
+        if (horizontal) {
+            if (x + length > BOARD_SIZE) {
+                valid = false;
+            } else {
+                for (int j = x; j < x + length; j++) {
+                    if (board.board[j][y] != '.') {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+        } else {
+            if (y + length > BOARD_SIZE) {
+                valid = false;
+            } else {
+                for (int j = y; j < y + length; j++) {
+                    if (board.board[x][j] != '.') {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if (valid) {  // если корабль можно поставить
+            for (int j = 0; j < length; j++) {  // по его длине
+                if (horizontal) {  // если он горизонтальный
+                    board.board[x + j][y] = static_cast<char>(254);  // заполняем клетки горизонтально
+                } else {  // иначе
+                    board.board[x][y + j] = static_cast<char>(254);  // заполнить клетки вертикально (j увеличивается)
+                }
+            }
+            board.ships[i] = {length, x, y, horizontal, false}; // добавляю в массив новый корабль
+        } else {
+            i--;
+        }
+    }
+}
 
-    int play_again;
-    RockPaperScissors game;
-    do {
-        game.play();
-        cout << "Do you wanna play again? (1 - yes, 0 - no): ";
-        cin >> play_again;
-    } while (play_again != 0);
+bool isValidMove(const Board &board, int x, int y) {
+    if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
+        return false;
+    }
+    return board.board[x][y] == '.' || board.board[x][y] == static_cast<char>(254);
+}
 
-    cout << "Thank you!" << endl;
+
+int main() {
+    Board player;
+    initBoard(player);
+    placeShip(player);
+
+    printBoard(player);
     return 0;
 }
