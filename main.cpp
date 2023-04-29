@@ -53,7 +53,7 @@ bool isShipHit(const Ship &ship, int x, int y) {
     }
 }
 
-bool isGameOver(const Board &board) {
+bool isGameOver(Board &board) {
     for (int i = 0; i < 10; i++) {
         if (board.ships[i].isSunk) {
             return false;
@@ -196,18 +196,21 @@ void makeMove(Board &board) {
 
 
 int main() {
+    srand(time(NULL));
     Board playerBoard, computerBoard;
     initBoard(playerBoard);
     initBoard(computerBoard);
     placeShip(playerBoard);
     placeShip(computerBoard);
 
-    cout << "Player board:\n";
-    printBoard(playerBoard);
-    makeMove(computerBoard);
+    while (isGameOver(playerBoard) && isGameOver(computerBoard)) {
+        cout << "Player board:\n";
+        printBoard(playerBoard);
+        makeMove(computerBoard);
 
-    cout << "Computer board:\n";
-    printBoard(computerBoard);
-    makeMove(playerBoard);
+        cout << "Computer board:\n";
+        printBoard(computerBoard);
+        makeMove(playerBoard);
+    }
     return 0;
 }
