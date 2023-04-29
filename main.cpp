@@ -83,46 +83,75 @@ bool isShipSunk(Ship &ship, Board &board) {
 
 void placeShip(Board &board) {
     srand(time(NULL));
-    for (int i = 0; i < 5; i++) {
-        bool horizontal = rand() % 2 == 0;
-        int x = rand() % BOARD_SIZE;
-        int y = rand() % BOARD_SIZE;
-        int length = 4 - i;
-        bool valid = true;
-        if (horizontal) {
-            if (x + length > BOARD_SIZE) {
-                valid = false;
+    const int numShips = 10; // общее количество кораблей
+    int shipsLength[numShips] = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};  // массив кораблей
+    int shipsLeft[numShips] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
+    int dx[] = {0, 1, 0, -1};
+    int dy[] = {1, 0, -1, 0};
+    for (int i = 0; i < numShips; i++) {
+        int length = shipsLength[i];
+        bool valid = false;
+
+        while (!valid) {
+            bool horizontal = rand() % 2 == 0;
+            int x = rand() % BOARD_SIZE;
+            int y = rand() % BOARD_SIZE;
+            if (horizontal) {
+                if (x + length > BOARD_SIZE) {
+                    continue;
+                } else {
+                    valid = true;
+                    for (int j = x; j < x + length; j++) {
+                        if (board.board[j][y] != '.') {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (valid) {
+                        for (int j = x - 1; j <= x + length; j++) {
+                            for (int k = y - 1; k <= y + 1; k++) {
+                                if (j >= 0 && j < BOARD_SIZE && k >= 0 && k < BOARD_SIZE && board.board[j][k] != '.') {
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
-                for (int j = x; j < x + length; j++) {
-                    if (board.board[j][y] != '.') {
-                        valid = false;
-                        break;
+                if (y + length > BOARD_SIZE) {
+                    continue;
+                } else {
+                    valid = true;
+                    for (int j = y; j < y + length; j++) {
+                        if (board.board[x][j] != '.') {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (valid) {
+                        for (int j = x - 1; j <= x + 1; j++) {
+                            for (int k = y - 1; k <= y + length; k++) {
+                                if (j >= 0 && j < BOARD_SIZE && k >= 0 && k < BOARD_SIZE && board.board[j][k] != '.') {
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
-        } else {
-            if (y + length > BOARD_SIZE) {
-                valid = false;
-            } else {
-                for (int j = y; j < y + length; j++) {
-                    if (board.board[x][j] != '.') {
-                        valid = false;
-                        break;
+            if (valid) {  // если корабль можно поставить
+                for (int j = 0; j < length; j++) {  // по его длине
+                    if (horizontal) {  // если он горизонтальный
+                        board.board[x + j][y] = static_cast<char>(254);  // заполняем клетки горизонтально
+                    } else {  // иначе
+                        board.board[x][y + j] = static_cast<char>(254);  // заполнить клетки вертикально (j увеличивается)
                     }
                 }
+                board.ships[i] = {length, x, y, horizontal, false}; // добавляю в массив новый корабль
+                shipsLeft[i]--;
             }
-        }
-        if (valid) {  // если корабль можно поставить
-            for (int j = 0; j < length; j++) {  // по его длине
-                if (horizontal) {  // если он горизонтальный
-                    board.board[x + j][y] = static_cast<char>(254);  // заполняем клетки горизонтально
-                } else {  // иначе
-                    board.board[x][y + j] = static_cast<char>(254);  // заполнить клетки вертикально (j увеличивается)
-                }
-            }
-            board.ships[i] = {length, x, y, horizontal, false}; // добавляю в массив новый корабль
-        } else {
-            i--;
         }
     }
 }
