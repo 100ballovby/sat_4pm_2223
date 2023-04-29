@@ -1,5 +1,5 @@
 #include <iostream>
-#include <ctime>
+#include <random>
 using namespace std;
 
 const int BOARD_SIZE = 10;
@@ -24,7 +24,7 @@ void initBoard(Board &board) {
         }
     }
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 10; i++) {
         board.ships[i].isSunk = false;
     }
 }
@@ -54,7 +54,7 @@ bool isShipHit(const Ship &ship, int x, int y) {
 }
 
 bool isGameOver(const Board &board) {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 10; i++) {
         if (board.ships[i].isSunk) {
             return false;
         }
@@ -82,7 +82,9 @@ bool isShipSunk(Ship &ship, Board &board) {
 }
 
 void placeShip(Board &board) {
-    srand(time(NULL));
+    random_device rd;  // объявление генератора случайных чисел
+    mt19937 gen(rd());  // для создания системы координат генерации
+    uniform_int_distribution<> dist(0, BOARD_SIZE);  // распределение результатов генерации имежду 0 и длиной доски
     const int numShips = 10; // общее количество кораблей
     int shipsLength[numShips] = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};  // массив кораблей
     int shipsLeft[numShips] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
@@ -94,8 +96,8 @@ void placeShip(Board &board) {
 
         while (!valid) {
             bool horizontal = rand() % 2 == 0;
-            int x = rand() % BOARD_SIZE;
-            int y = rand() % BOARD_SIZE;
+            int x = dist(gen);
+            int y = dist(gen);
             if (horizontal) {
                 if (x + length > BOARD_SIZE) {
                     continue;
@@ -156,6 +158,7 @@ void placeShip(Board &board) {
     }
 }
 
+
 bool isValidMove(const Board &board, int x, int y) {
     if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
         return false;
@@ -163,12 +166,48 @@ bool isValidMove(const Board &board, int x, int y) {
     return board.board[x][y] == '.' || board.board[x][y] == static_cast<char>(254);
 }
 
+void makeMove(Board &board) {
+    string input;
+    int x, y;
+
+    do {
+        cout << "Insert coordinates: ";
+        cin >> input;
+        x = input[0] - 'A';  // A (32) - A (32) = 0
+        y = input[1] - '1';
+    } while (!isValidMove(board, x, y));
+
+    if (board.board[x][y] == static_cast<char>(254)) {
+        for (int i = 0; i < 10; i++) {
+            if (!board.ships[i].isSunk && isShipHit(board.ships[i], x, y)) {
+                if (isShipSunk(board.ships[i], board)) {
+                    cout << "You Sank my ship!" << endl;
+                } else {
+                    cout << "Hit!" << endl;
+                }
+                board.board[x][y] = 'X';
+                return;
+            }
+        }
+    }
+    cout << "Miss!" << endl;
+    board.board[x][y] = '-';
+}
+
 
 int main() {
-    Board player;
-    initBoard(player);
-    placeShip(player);
+    Board playerBoard, computerBoard;
+    initBoard(playerBoard);
+    initBoard(computerBoard);
+    placeShip(playerBoard);
+    placeShip(computerBoard);
 
-    printBoard(player);
+    cout << "Player board:\n";
+    printBoard(playerBoard);
+    makeMove(computerBoard);
+
+    cout << "Computer board:\n";
+    printBoard(computerBoard);
+    makeMove(playerBoard);
     return 0;
 }
