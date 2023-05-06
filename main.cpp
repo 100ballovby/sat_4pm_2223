@@ -32,7 +32,7 @@ void initBoard(Board &board) {
 void printBoard(const Board &board) {
     cout << "\t";
     for (int i = 0; i < BOARD_SIZE; i++) {
-        cout << i + 1 << "\t";
+        cout << i << "\t";
     }
     cout << "\n";
 
@@ -54,106 +54,92 @@ bool isShipHit(const Ship &ship, int x, int y) {
 }
 
 bool isGameOver(Board &board) {
+    bool finished;
     for (int i = 0; i < 10; i++) {
         if (board.ships[i].isSunk) {
-            return false;
+            finished = true;
+        } else {
+            finished = false;
         }
     }
-    return true;
+    return finished;
 }
 
 bool isShipSunk(Ship &ship, Board &board) {
+    bool isHit = false;
     for (int i = 0; i < ship.length; i++) {
         if (!isShipHit(ship, ship.horizontal ? ship.x + i : ship.x,
                        ship.horizontal ? ship.y : ship.y + i)) {
             return false;
         }
+        isHit = true;
     }
-    ship.isSunk = true;
-
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            if (board.board[i][j] == 'X' && !isShipHit(ship, i, j)) {
-                return false;
+    if (isHit) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (ship.horizontal) {
+                    if (board.board[i][j] == 'X' && !isShipHit(ship, i, j)) {
+                        ship.isSunk = true;
+                    }
+                } else {
+                    if (board.board[j][i] == 'X' && !isShipHit(ship, i, j)) {
+                        ship.isSunk = true;
+                    }
+                }
             }
         }
+        return true;
+    } else {
+        return false;
     }
-    return true;
 }
 
+
 void placeShip(Board &board) {
-    random_device rd;  // объявление генератора случайных чисел
-    mt19937 gen(rd());  // для создания системы координат генерации
-    uniform_int_distribution<> dist(0, BOARD_SIZE);  // распределение результатов генерации имежду 0 и длиной доски
-    const int numShips = 10; // общее количество кораблей
-    int shipsLength[numShips] = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};  // массив кораблей
-    int shipsLeft[numShips] = {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
-    int dx[] = {0, 1, 0, -1};
-    int dy[] = {1, 0, -1, 0};
+    const int numShips = 10;
+    int shipsLength[numShips] = {1, 1, 1, 1, 2, 2, 2, 3, 3, 4};
+    int shipsLeft[numShips] = {4, 3, 2, 1, 2, 2, 2, 1, 1, 1};
+
+
     for (int i = 0; i < numShips; i++) {
         int length = shipsLength[i];
         bool valid = false;
 
         while (!valid) {
             bool horizontal = rand() % 2 == 0;
-            int x = dist(gen);
-            int y = dist(gen);
-            if (horizontal) {
-                if (x + length > BOARD_SIZE) {
-                    continue;
-                } else {
-                    valid = true;
-                    for (int j = x; j < x + length; j++) {
-                        if (board.board[j][y] != '.') {
-                            valid = false;
-                            break;
-                        }
-                    }
-                    if (valid) {
-                        for (int j = x - 1; j <= x + length; j++) {
-                            for (int k = y - 1; k <= y + 1; k++) {
-                                if (j >= 0 && j < BOARD_SIZE && k >= 0 && k < BOARD_SIZE && board.board[j][k] != '.') {
-                                    valid = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+            int x = rand() % (BOARD_SIZE - length + 1);
+            int y = rand() % (BOARD_SIZE - length + 1);
+
+            // проверяем, что на всех клетках, которые занимает корабль, нет других кораблей
+            bool hasCollision = false;
+            for (int j = 0; j < length; j++) {
+                if (horizontal && board.board[x + j][y] != '.') {
+                    hasCollision = true;
+                    break;
                 }
-            } else {
-                if (y + length > BOARD_SIZE) {
-                    continue;
-                } else {
-                    valid = true;
-                    for (int j = y; j < y + length; j++) {
-                        if (board.board[x][j] != '.') {
-                            valid = false;
-                            break;
-                        }
-                    }
-                    if (valid) {
-                        for (int j = x - 1; j <= x + 1; j++) {
-                            for (int k = y - 1; k <= y + length; k++) {
-                                if (j >= 0 && j < BOARD_SIZE && k >= 0 && k < BOARD_SIZE && board.board[j][k] != '.') {
-                                    valid = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                if (!horizontal && board.board[x][y + j] != '.') {
+                    hasCollision = true;
+                    break;
                 }
             }
-            if (valid) {  // если корабль можно поставить
-                for (int j = 0; j < length; j++) {  // по его длине
-                    if (horizontal) {  // если он горизонтальный
-                        board.board[x + j][y] = static_cast<char>(254);  // заполняем клетки горизонтально
-                    } else {  // иначе
-                        board.board[x][y + j] = static_cast<char>(254);  // заполнить клетки вертикально (j увеличивается)
-                    }
-                }
-                board.ships[i] = {length, x, y, horizontal, false}; // добавляю в массив новый корабль
-                shipsLeft[i]--;
+
+            if (hasCollision) {  // если корабль имеет пересечение с другими кораблями, то мы пропускаем итерацию и пытаемся поставить его в другое место
+                continue;
             }
+
+            // если корабль не пересекается ни с чем
+            for (int j = 0; j < length; j++) {
+                if (horizontal) {
+                    board.board[x + j][y] = static_cast<char>(254);
+                } else {
+                    board.board[x][y + j] = static_cast<char>(254);
+                }
+            }
+
+            // добавить корабль в массив кораблей на доске
+            board.ships[i] = {length, x, y, horizontal, false};
+            shipsLeft[i]--;
+            valid = true;
         }
     }
 }
@@ -174,7 +160,7 @@ void makeMove(Board &board) {
         cout << "Insert coordinates: ";
         cin >> input;
         x = input[0] - 'A';  // A (32) - A (32) = 0
-        y = input[1] - '1';
+        y = input[1] - '0';
     } while (!isValidMove(board, x, y));
 
     if (board.board[x][y] == static_cast<char>(254)) {
@@ -203,7 +189,12 @@ int main() {
     placeShip(playerBoard);
     placeShip(computerBoard);
 
-    while (isGameOver(playerBoard) && isGameOver(computerBoard)) {
+    cout << "player sunked ships: ";
+    for (int i = 0; i < 10; i++) {
+        cout << playerBoard.ships[i].isSunk << " ";
+    }
+
+    while (!isGameOver(playerBoard) && !isGameOver(computerBoard)) {
         cout << "Player board:\n";
         printBoard(playerBoard);
         makeMove(computerBoard);
@@ -211,6 +202,13 @@ int main() {
         cout << "Computer board:\n";
         printBoard(computerBoard);
         makeMove(playerBoard);
+
+    }
+
+    if (isGameOver(playerBoard)) {
+        cout << "Computer wins!" << endl;
+    } else if (isGameOver(computerBoard)) {
+        cout << "Player wins!" << endl;
     }
     return 0;
 }
