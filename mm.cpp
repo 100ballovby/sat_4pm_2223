@@ -4,6 +4,7 @@ bool isShipHit(const Ship &ship, int x, int y) {
     } else {
         return ship.y <= y && y < ship.y + ship.length && ship.x == x;
     }
+
 }
 
 bool isShipSunk(Ship &ship, Board &board) {
