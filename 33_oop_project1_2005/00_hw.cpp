@@ -43,7 +43,17 @@ public:
     }
 };
 
-int main() {
+int hw_oop_main() {
+    Student ivan("Ivan", 20, 5.6);
 
+    // изменим данные
+    ivan.setName("Petr");
+    ivan.setAge(21);
+    ivan.setAverageGrade(8.9);
+
+    // получим данные
+    cout << "имя: " << ivan.getName() << endl;
+    cout << "возраст: " << ivan.getAge() << endl;
+    cout << "Средний балл: " << ivan.getAverageGrade() << endl;
     return 0;
 }
