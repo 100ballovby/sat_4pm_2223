@@ -1,62 +1,54 @@
 #include <iostream>
-#include <string>
 using namespace std;
 
-class CaesarCipher {
+
+class Car {
 private:
-    int shift;
+    string make;
+    string model;
+    int year;
+    string color;
 public:
-    // Конструктор с параметрами
-    CaesarCipher(int cipherShift) {
-        shift = cipherShift;
+    Car(string brand, string series, int prod_y, string c_code) {
+        this->make = brand;  // this - это указатель на объект класса
+        this->model = series;
+        this->year = prod_y;
+        this->color = c_code;
     }
 
-    // метод шифрования
-    string encrypt(string &message) {
-        string encryptedMessage = "";
-
-        for (char c : message) {
-            // проверим, является ли символ буквой
-            if (isalpha(c)) {
-                char base = islower(c) ? 'a' : 'A';
-                int alphabetSize = 26;
-                int alphabetIndex = (c - base + shift) % alphabetSize;
-                if (alphabetIndex < 0) {
-                    alphabetIndex += alphabetSize;
-                }
-                // преобразую символ обратно в букву
-                char encrChar = base + alphabetIndex;
-                encryptedMessage += encrChar;
-            } else {
-                encryptedMessage += c;
-            }
-        }
-        return encryptedMessage;
+    string getMake() {
+        return make;
     }
 
-    string decrypt(string &encrMsg) {
-        // для дешифровки будем использовать отрицательный сдвиг
-        CaesarCipher decryptCipher(-shift);
-        return decryptCipher.encrypt(encrMsg);
+    string setMake(string make) {
+        this->make = make;
+    }
+};
+
+class PointCoord {
+private:
+    int x, y;
+public:
+    PointCoord(int x, int y) {
+        this->x = x;
+        this->y = y;
+    }
+
+    void showCoords() {
+        cout << "Coords x: " << x << "\t y: " << y << endl;
+    }
+
+    PointCoord &move(int x, int y) {
+        this->x = x;
+        this->y = y;
+        return *this;
     }
 };
 
 int main() {
-    int shift;
-    string message;
-
-    cout << "Insert message: ";
-    getline(cin, message);
-
-    cout << "Insert shift: ";
-    cin >> shift;
-
-    CaesarCipher cipher(shift);
-
-    string encryptedMessage = cipher.encrypt(message);
-    cout << "Encrypted: " << encryptedMessage << endl << endl;
-
-    string decryptedMessage = cipher.decrypt(encryptedMessage);
-    cout << "Decrypted: " << decryptedMessage << endl << endl;
+    PointCoord p1 { 20, 50 };
+    p1.showCoords();
+    p1.move(10, 5).move(10, 10).move(20, 20);
+    p1.showCoords();
     return 0;
 }
