@@ -1,54 +1,36 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
-
-class Car {
+class Person {
 private:
-    string make;
-    string model;
-    int year;
-    string color;
+    string name;
+    int age;
+    double salary;
 public:
-    Car(string brand, string series, int prod_y, string c_code) {
-        this->make = brand;  // this - это указатель на объект класса
-        this->model = series;
-        this->year = prod_y;
-        this->color = c_code;
+    Person(string name, int age, double salary) : name(name), age(age), salary(salary) {}
+
+    void displayInfo() {
+        cout << "Name: " << name << endl;
+        cout << "Age: " << age << endl;
+        cout << "Salary: $" << salary << endl;
     }
 
-    string getMake() {
-        return make;
-    }
-
-    string setMake(string make) {
-        this->make = make;
-    }
-};
-
-class PointCoord {
-private:
-    int x, y;
-public:
-    PointCoord(int x, int y) {
-        this->x = x;
-        this->y = y;
-    }
-
-    void showCoords() {
-        cout << "Coords x: " << x << "\t y: " << y << endl;
-    }
-
-    PointCoord &move(int x, int y) {
-        this->x = x;
-        this->y = y;
-        return *this;
+    void setSalary(double newSalary) {
+        if (newSalary >= 0) {
+            salary = newSalary;
+            cout << "Salary changed." << endl;
+        } else {
+            cout << "Incorrect salary." << endl;
+        }
     }
 };
 
 int main() {
-    PointCoord p1 { 20, 50 };
-    p1.showCoords();
-    p1.move(10, 5).move(10, 10).move(20, 20);
-    p1.showCoords();
+    Person person("John", 30, 5000.0);
+
+    person.displayInfo();
+    person.setSalary(5500.0);
+    person.displayInfo();
     return 0;
 }
